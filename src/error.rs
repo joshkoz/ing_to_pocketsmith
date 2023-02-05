@@ -13,4 +13,7 @@ pub enum Error {
 
     #[error(transparent)]
     Network(#[from] reqwest::Error),
+
+    #[error(transparent)]
+    DateTimeParse(#[from] chrono::format::ParseError),
 }

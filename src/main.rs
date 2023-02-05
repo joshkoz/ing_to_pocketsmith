@@ -7,7 +7,6 @@ use ing_to_pocketsmith::config::Config;
 
 mod error;
 mod prelude;
-
 mod transaction_csv_parser;
 
 #[tokio::main]
