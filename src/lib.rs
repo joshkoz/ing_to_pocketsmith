@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 pub mod config;
 pub mod error;
+pub mod pocketsmith;
 pub mod prelude;
 pub mod run;
 pub mod transaction_csv_parser;
