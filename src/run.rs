@@ -1,19 +1,39 @@
-use std::{env, fs::File};
+use std::{
+    env,
+    fs::{self, File},
+};
 
 use crate::{config::Config, prelude::*, transaction_csv_parser};
 
-use phf::phf_map;
+use serde_derive::Deserialize;
 
-static ACCOUNT_MAP: phf::Map<&'static str, u64> = phf_map! {
-    "38422180" => 819702,   // Everyday account
-    "300010508" => 908078,  // Defunct income account
-    "41279290" => 819721,   // Savings account
-    "200050362" => 1355406, // Offset account mortgage account
-    "200050373" => 1355409 // Fixed rate mortgage account
-};
+#[derive(Debug, Deserialize)]
+struct ConfigFile {
+    account: Vec<AccountMapingEntry>,
+    pocketsmith: PocketSmith,
+}
+
+#[derive(Debug, Deserialize)]
+struct PocketSmith {
+    developer_key: String,
+    user_id: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct AccountMapingEntry {
+    ing: String,
+    pocketsmith: String,
+}
 
 pub fn run() -> Result<()> {
     let config = Config::build(env::args())?;
+
+    let filename = "config.toml";
+
+    let contents = fs::read_to_string(filename)?;
+
+    let data: ConfigFile = toml::from_str(&contents).unwrap();
+    println!("{:?}", data);
 
     let file = File::open(&config.path)?;
 

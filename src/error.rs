@@ -12,6 +12,9 @@ pub enum Error {
     IO(#[from] std::io::Error),
 
     #[error(transparent)]
+    Parse(#[from] toml::de::Error),
+
+    #[error(transparent)]
     Network(#[from] reqwest::Error),
 
     #[error(transparent)]

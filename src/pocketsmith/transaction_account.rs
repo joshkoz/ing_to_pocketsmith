@@ -26,11 +26,9 @@ pub struct PocketSmithClient {
 }
 
 impl PocketSmithClient {
-    pub fn new() -> Self {
+    pub fn new(developer_key: String) -> Self {
         let mut headers = header::HeaderMap::new();
 
-        let developer_key = std::env::var("POCKETSMITH_DEVELOPER_KEY")
-            .expect("Environment variable POCKETSMITH_DEVELOPER_KEY isn't set");
         let mut auth_value = header::HeaderValue::from_str(&developer_key).unwrap();
         auth_value.set_sensitive(true);
 
@@ -61,13 +59,9 @@ impl PocketSmithClient {
 mod tests {
     use super::*;
 
-    fn setup() {
-        dotenv::dotenv().ok();
-    }
     #[tokio::test]
     async fn check() {
-        setup();
-        let p = PocketSmithClient::new();
+        let p = PocketSmithClient::new(String::new());
         let response = p.find_transaction_account("161369").await.unwrap();
         assert_eq!(response, "hello");
     }
