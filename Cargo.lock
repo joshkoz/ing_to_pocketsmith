@@ -424,21 +424,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ing_to_pocketsmith"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "chrono",
- "csv",
- "reqwest",
- "serde",
- "serde_derive",
- "thiserror",
- "tokio",
- "toml",
-]
-
-[[package]]
 name = "instant"
 version = "0.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -682,6 +667,21 @@ name = "pkg-config"
 version = "0.3.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6ac9a59f73473f1b8d852421e59e64809f025994837ef743615c6d0c5b305160"
+
+[[package]]
+name = "pocketsmith-importer"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "csv",
+ "reqwest",
+ "serde",
+ "serde_derive",
+ "thiserror",
+ "tokio",
+ "toml",
+]
 
 [[package]]
 name = "proc-macro2"
