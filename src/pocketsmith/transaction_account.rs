@@ -3,6 +3,8 @@ use reqwest::{
     Client, Url,
 };
 
+use super::transaction::Transaction;
+
 pub struct TransactionAccount {
     id: String,
     name: String,
@@ -42,6 +44,34 @@ impl PocketSmithClient {
             base_url: "https://api.pocketsmith.com/v2/".to_owned(),
         }
     }
+    pub async fn get_user(&self) -> anyhow::Result<String> {
+        let url = Url::parse(&self.base_url)?;
+        let url = url.join(&format!("{}", "me")).unwrap();
+        let request = self.http_client.get(url);
+        let response = request.send().await?.text().await?;
+
+        Ok(response)
+    }
+
+    pub async fn list_transactions(
+        &self,
+        id: impl AsRef<str>,
+        params: Vec<(&'static str, String)>,
+    ) -> anyhow::Result<Vec<Transaction>> {
+        let url = Url::parse(&self.base_url)?;
+        let url = url
+            .join(&format!(
+                "{}{}{}",
+                "./transaction_accounts/",
+                id.as_ref(),
+                "/transactions"
+            ))
+            .unwrap();
+        let request = self.http_client.get(url).query(&params);
+        let response: Vec<Transaction> = dbg!(request).send().await?.json().await?;
+
+        Ok(dbg!(response))
+    }
 
     pub async fn find_transaction_account(&self, id: impl AsRef<str>) -> anyhow::Result<String> {
         let url = Url::parse(&self.base_url)?;
@@ -60,9 +90,50 @@ mod tests {
     use super::*;
 
     #[tokio::test]
+    async fn build_transactions() {
+        const PAGES_COUNT_TO_FETCH: usize = 10;
+        // NOTE: Only a maximum of 100 per page is allowed.
+        const PER_PAGE: usize = 100;
+        let p = PocketSmithClient::new("".to_string());
+        let mut transaction_list = Vec::new();
+        for i in 1..=PAGES_COUNT_TO_FETCH {
+            let mut response = p
+                .list_transactions(
+                    "819702",
+                    vec![("page", i.to_string()), ("per_page", PER_PAGE.to_string())],
+                )
+                .await;
+            if response.is_ok() {
+                transaction_list.append(&mut response.unwrap());
+            } else {
+                dbg!(response);
+                break;
+            }
+        }
+        assert_eq!(PER_PAGE * PAGES_COUNT_TO_FETCH, transaction_list.len())
+    }
+
+    #[tokio::test]
+    async fn list_transactions() {
+        let p = PocketSmithClient::new("".to_string());
+        let response = p
+            .list_transactions("819702", vec![("page", "1".to_string())])
+            .await;
+
+        assert_eq!(dbg!(response).unwrap()[0].id, 453351987);
+    }
+
+    #[tokio::test]
+    async fn find_me() {
+        let p = PocketSmithClient::new("".to_string());
+        let response = p.get_user().await.unwrap();
+        assert_eq!(response, "hello");
+    }
+
+    #[tokio::test]
     async fn check() {
-        let p = PocketSmithClient::new(String::new());
-        let response = p.find_transaction_account("161369").await.unwrap();
+        let p = PocketSmithClient::new("".to_string());
+        let response = p.find_transaction_account("819702").await.unwrap();
         assert_eq!(response, "hello");
     }
 }
