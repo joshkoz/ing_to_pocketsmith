@@ -1,3 +1,4 @@
+pub mod transaction;
 pub mod transaction_account;
 
 pub struct PocketSmith {
