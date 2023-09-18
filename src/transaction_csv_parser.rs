@@ -1,6 +1,6 @@
 use chrono::{DateTime, NaiveDate};
 use serde_derive::Deserialize;
-use std::{collections::HashMap, fs::File};
+use std::{collections::HashMap, fs::File, sync::Arc};
 
 use crate::prelude::*;
 
@@ -47,14 +47,14 @@ impl Transaction {
     }
 }
 
-pub fn parse(file: File, limit: usize) -> Result<HashMap<String, Vec<Transaction>>> {
+pub fn parse(file: File, limit: usize) -> Result<HashMap<Arc<str>, Vec<Transaction>>> {
     let mut rdr = csv::ReaderBuilder::new()
         // .has_headers(false)
         .from_reader(&file);
 
     let csv_data: csv::DeserializeRecordsIter<&File, Row> = rdr.deserialize();
 
-    let mut hash_map: HashMap<String, Vec<Transaction>> = HashMap::new();
+    let mut hash_map: HashMap<Arc<str>, Vec<Transaction>> = HashMap::new();
 
     let mut count = 0;
     for record in csv_data {
@@ -67,7 +67,7 @@ pub fn parse(file: File, limit: usize) -> Result<HashMap<String, Vec<Transaction
                 Some(acc_number) => acc_number,
                 None => return Err(Error::Generic(String::from("Account number is for row"))),
             };
-            let vec = hash_map.entry(account_number).or_insert(Vec::new());
+            let vec = hash_map.entry(account_number.into()).or_insert(Vec::new());
             vec.push(Transaction::try_build(record)?);
         }
     }
