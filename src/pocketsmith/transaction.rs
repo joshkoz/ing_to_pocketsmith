@@ -7,7 +7,7 @@ pub struct Transaction {
     original_payee: String,
     pub date: String,
     upload_source: String,
-    category: Category,
+    category: Option<Category>,
     closing_balance: f64,
     cheque_number: Option<String>,
     memo: Option<String>,

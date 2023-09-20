@@ -108,7 +108,7 @@ pub async fn run() -> Result<()> {
                     .collect();
                 pocketsmith_transactions.append(&mut transactions);
             } else {
-                // dbg!(response);
+                dbg!(response);
                 break;
             }
         }
@@ -134,7 +134,7 @@ pub async fn run() -> Result<()> {
                 .collect::<Vec<_>>();
             let is_duplicate = filtered_list_b
                 .iter()
-                .any(|t| t.payee == candidate_transaction.desc);
+                .any(|t| t.payee == candidate_transaction.payee);
 
             // If it's a duplicate skip it.
             // else create it.
@@ -144,13 +144,18 @@ pub async fn run() -> Result<()> {
                 //     ing_account_id, candidate_transaction.date, candidate_transaction.desc
                 // );
             } else {
+                println!(
+                    "Creating transaction ({}): {} {}",
+                    ing_account_id, candidate_transaction.date, candidate_transaction.payee
+                );
+                pocketsmith_client
+                    .create_transaction(pocketsmith_account_id, candidate_transaction)
+                    .await
+                    .unwrap();
                 // dbg!(candidate_transaction);
                 // dbg!(filtered_list_a);
                 // dbg!(filtered_list_b);
-                println!(
-                    "Creating transaction ({}): {} {}",
-                    ing_account_id, candidate_transaction.date, candidate_transaction.desc
-                );
+                //
             }
         }
     }

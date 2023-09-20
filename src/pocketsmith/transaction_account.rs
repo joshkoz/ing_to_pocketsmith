@@ -3,7 +3,9 @@ use reqwest::{
     Client, Url,
 };
 
-use super::transaction::Transaction;
+use crate::transaction_csv_parser;
+
+use super::transaction::{self, Transaction};
 
 pub struct TransactionAccount {
     id: String,
@@ -53,11 +55,29 @@ impl PocketSmithClient {
         Ok(response)
     }
 
+    pub async fn create_transaction(
+        &self,
+        id: impl AsRef<str>,
+        transaction: &transaction_csv_parser::Transaction,
+    ) -> anyhow::Result<String> {
+        let url = Url::parse(&self.base_url)?;
+        let url = url.join(&format!(
+            "{}{}{}",
+            "./transaction_accounts/",
+            id.as_ref(),
+            "/transactions"
+        ))?;
+        let request = self.http_client.post(url).json(transaction);
+        let response = request.send().await?.text().await?;
+
+        Ok(response)
+    }
+
     pub async fn list_transactions(
         &self,
         id: impl AsRef<str>,
         params: Vec<(&'static str, String)>,
-    ) -> anyhow::Result<Vec<Transaction>> {
+    ) -> crate::Result<Vec<Transaction>> {
         let url = Url::parse(&self.base_url)?;
         let url = url
             .join(&format!(
@@ -68,9 +88,15 @@ impl PocketSmithClient {
             ))
             .unwrap();
         let request = self.http_client.get(url).query(&params);
-        let response: Vec<Transaction> = request.send().await?.json().await?;
-
-        Ok(response)
+        let response = request.send().await?;
+        if (!response.status().is_success()) {
+            let body = response.text().await?; 
+            println!("Error in API call: {:?}", &body);
+            Err(crate::Error::Generic("Error in API call".to_string()))
+        } else {
+            let response: Vec<Transaction> = response.json().await?;
+            Ok(response)
+        }
     }
 
     pub async fn find_transaction_account(&self, id: impl AsRef<str>) -> anyhow::Result<String> {

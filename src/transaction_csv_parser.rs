@@ -1,6 +1,6 @@
 use chrono::{DateTime, NaiveDate};
 use regex::Regex;
-use serde_derive::Deserialize;
+use serde_derive::{Deserialize, Serialize};
 use std::{collections::HashMap, fs::File, sync::Arc};
 
 use crate::prelude::*;
@@ -19,13 +19,13 @@ struct Row {
     debit: Option<f64>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Transaction {
     pub date: NaiveDate,
     pub note: Option<String>,
     pub amount: f64,
     pub is_transfer: bool,
-    pub desc: String,
+    pub payee: String,
 }
 
 impl Transaction {
@@ -43,7 +43,7 @@ impl Transaction {
         Ok(Transaction {
             date,
             amount,
-            desc: re.replace_all(&desc, " ").to_string(),
+            payee: re.replace_all(&desc, " ").to_string(),
             note,
             is_transfer: false,
         })

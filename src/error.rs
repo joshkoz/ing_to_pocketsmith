@@ -1,3 +1,4 @@
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     // For starting, remove as code matures...
@@ -16,6 +17,9 @@ pub enum Error {
 
     #[error(transparent)]
     Network(#[from] reqwest::Error),
+
+    #[error(transparent)]
+    UrlParse(#[from] url::ParseError),
 
     #[error(transparent)]
     DateTimeParse(#[from] chrono::format::ParseError),
