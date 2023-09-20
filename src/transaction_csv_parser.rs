@@ -1,4 +1,5 @@
 use chrono::{DateTime, NaiveDate};
+use regex::Regex;
 use serde_derive::Deserialize;
 use std::{collections::HashMap, fs::File, sync::Arc};
 
@@ -24,7 +25,7 @@ pub struct Transaction {
     pub note: Option<String>,
     pub amount: f64,
     pub is_transfer: bool,
-    pub merchant: String,
+    pub desc: String,
 }
 
 impl Transaction {
@@ -34,13 +35,15 @@ impl Transaction {
             .description
             .expect("Every transaction should have a description");
         let mut split = description.splitn(2, "-");
-        let merchant = split.next().map(|s| s.trim().to_owned()).unwrap();
+        let desc = split.next().map(|s| s.trim().to_owned()).unwrap();
         let note = split.next().map(|s| s.trim().to_owned());
         let amount = row.debit.or(row.credit).unwrap_or(64 as f64);
+
+        let re = Regex::new(r" +").unwrap(); // Match one or more spaces
         Ok(Transaction {
             date,
             amount,
-            merchant,
+            desc: re.replace_all(&desc, " ").to_string(),
             note,
             is_transfer: false,
         })

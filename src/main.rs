@@ -12,7 +12,7 @@ mod transaction_csv_parser;
 #[tokio::main]
 
 async fn main() {
-    if let Err(err) = pocketsmith_importer::run() {
+    if let Err(err) = pocketsmith_importer::run().await {
         eprintln!("Error: {:?}", err);
         std::process::exit(1);
     }

@@ -3,19 +3,19 @@ use serde_derive::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Transaction {
     pub id: u64,
-    payee: String,
+    pub payee: String,
     original_payee: String,
-    date: String,
+    pub date: String,
     upload_source: String,
     category: Category,
     closing_balance: f64,
     cheque_number: Option<String>,
     memo: Option<String>,
-    amount: f64,
+    pub amount: f64,
     amount_in_base_currency: f64,
     #[serde(rename = "type")]
     transaction_type: String,
-    is_transfer: bool,
+    is_transfer: Option<bool>,
     needs_review: bool,
     status: String,
     note: Option<String>,

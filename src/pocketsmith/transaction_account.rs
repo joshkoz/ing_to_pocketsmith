@@ -68,9 +68,9 @@ impl PocketSmithClient {
             ))
             .unwrap();
         let request = self.http_client.get(url).query(&params);
-        let response: Vec<Transaction> = dbg!(request).send().await?.json().await?;
+        let response: Vec<Transaction> = request.send().await?.json().await?;
 
-        Ok(dbg!(response))
+        Ok(response)
     }
 
     pub async fn find_transaction_account(&self, id: impl AsRef<str>) -> anyhow::Result<String> {
@@ -78,8 +78,8 @@ impl PocketSmithClient {
         let url = url
             .join(&format!("{}{}", "./transaction_accounts/", id.as_ref()))
             .unwrap();
-        let request = dbg!(self.http_client.get(url));
-        let response = dbg!(request.send().await?.text().await?);
+        let request = self.http_client.get(url);
+        let response = request.send().await?.text().await?;
 
         Ok(response)
     }
